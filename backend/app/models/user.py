@@ -62,7 +62,13 @@ class User(Base):
         cascade="all, delete-orphan",
     )
 
+    sessions: Mapped[list["Session"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+
 
 from app.models.sticker import Sticker
 from app.models.task import Task
 from app.models.task_list import TaskList
+from app.models.session import Session

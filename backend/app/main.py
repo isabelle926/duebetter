@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 
-from app.api.routes import lists, tasks
-
+from app.api.routes import auth, lists, tasks
 
 app = FastAPI(
     title="DueBetter API",
@@ -32,3 +31,8 @@ def health_check():
     return {
         "status": "healthy",
     }
+
+app.include_router(
+    auth.router,
+    prefix="/api",
+)
