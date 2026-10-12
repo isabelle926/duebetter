@@ -30,7 +30,7 @@ export function ListSidebar({
       <div className="flex-1 space-y-6 overflow-y-auto p-4">
         {lists.map((list) => {
           const listTasks = tasks.filter(
-            (task) => task.listId === list.id,
+            (task) => task.list_id === list.id,
           );
 
           return (

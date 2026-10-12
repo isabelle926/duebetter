@@ -25,8 +25,10 @@ const WEEKDAYS = [
 ];
 
 export function Calendar({ tasks, lists }: CalendarProps) {
+    const [today] = useState(() => new Date());
+
     const [currentDate, setCurrentDate] = useState(
-        () => new Date(),
+        () => today,
     );
 
     const calendarDays = useMemo(
@@ -89,13 +91,14 @@ export function Calendar({ tasks, lists }: CalendarProps) {
                     const dateKey = formatDateKey(date);
 
                     const tasksForDay = tasks.filter(
-                        (task) => task.dueDate === dateKey,
+                        (task) => task.due_date === dateKey,
                     );
 
                     return (
                         <CalendarDay
                             key={dateKey}
                             date={date}
+                            today={today}
                             isCurrentMonth={isCurrentMonth}
                             tasks={tasksForDay}
                             lists={lists}

@@ -1,7 +1,10 @@
 export interface Task {
     id: string;
     title: string;
-    dueDate: string; 
+    description: string | null;
+    due_date: string;
     completed: boolean;
-    listId: string;
-}
+    list_id: string;
+    sticker_id: string | null;
+    position: number;
+  }
