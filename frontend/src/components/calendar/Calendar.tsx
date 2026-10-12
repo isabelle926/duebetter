@@ -12,7 +12,8 @@ import {
 interface CalendarProps {
     tasks: Task[];
     lists: TaskList[];
-}
+    onSelectDate: (date: Date) => void;
+  }
 
 const WEEKDAYS = [
     "Sun",
@@ -24,7 +25,11 @@ const WEEKDAYS = [
     "Sat",
 ];
 
-export function Calendar({ tasks, lists }: CalendarProps) {
+export function Calendar({
+    tasks,
+    lists,
+    onSelectDate,
+  }: CalendarProps) {
     const [today] = useState(() => new Date());
 
     const [currentDate, setCurrentDate] = useState(
@@ -102,6 +107,7 @@ export function Calendar({ tasks, lists }: CalendarProps) {
                             isCurrentMonth={isCurrentMonth}
                             tasks={tasksForDay}
                             lists={lists}
+                            onSelectDate={onSelectDate}
                         />
                     );
                 })}

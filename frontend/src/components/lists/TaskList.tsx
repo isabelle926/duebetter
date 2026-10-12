@@ -6,28 +6,55 @@ interface TaskListProps {
   list: TaskListType;
   tasks: Task[];
   onToggleTask: (taskId: string) => void;
+  onDeleteTask: (taskId: string) => void;
+  onDeleteList: (listId: string) => void;
 }
 
 export function TaskList({
   list,
   tasks,
   onToggleTask,
+  onDeleteTask,
+  onDeleteList,
 }: TaskListProps) {
+  const incompleteTaskCount = tasks.filter(
+    (task) => !task.completed,
+  ).length;
+
   return (
     <section>
       <div className="mb-2 flex items-center gap-2 px-2">
         <span
-          className="h-2.5 w-2.5 rounded-full"
-          style={{ backgroundColor: list.color }}
+          className="h-2.5 w-2.5 shrink-0 rounded-full"
+          style={{
+            backgroundColor: list.color,
+          }}
         />
 
-        <h3 className="text-sm font-semibold text-slate-800">
+        <h3 className="min-w-0 truncate text-sm font-semibold text-slate-800">
           {list.name}
         </h3>
 
-        <span className="ml-auto text-xs text-slate-400">
-          {tasks.filter((task) => !task.completed).length}
-        </span>
+        <div className="ml-auto flex items-center gap-2">
+          <span
+            className="text-xs text-slate-400"
+            title={`${incompleteTaskCount} incomplete tasks`}
+          >
+            {incompleteTaskCount}
+          </span>
+
+          <button
+            type="button"
+            onClick={() =>
+              onDeleteList(list.id)
+            }
+            className="flex h-6 w-6 items-center justify-center rounded text-xs text-slate-300 transition hover:bg-red-50 hover:text-red-600"
+            aria-label={`Delete ${list.name}`}
+            title="Delete list"
+          >
+            ×
+          </button>
+        </div>
       </div>
 
       <div className="space-y-0.5">
@@ -41,6 +68,7 @@ export function TaskList({
               key={task.id}
               task={task}
               onToggle={onToggleTask}
+              onDelete={onDeleteTask}
             />
           ))
         )}

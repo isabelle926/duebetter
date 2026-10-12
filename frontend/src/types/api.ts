@@ -49,3 +49,23 @@ export interface User {
     completed?: boolean;
     position?: number;
   }
+
+  export interface CreateListInput {
+    name: string;
+    color: string;
+    position?: number;
+  }
+  
+  export interface UpdateListInput {
+    name?: string;
+    color?: string;
+    position?: number;
+  }
+  
+  export interface CreateTaskInput {
+    list_id: string;
+    title: string;
+    description?: string | null;
+    due_date: string;
+    position?: number;
+  }

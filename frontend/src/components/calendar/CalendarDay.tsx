@@ -7,6 +7,7 @@ interface CalendarDayProps {
   isCurrentMonth: boolean;
   tasks: Task[];
   lists: TaskList[];
+  onSelectDate: (date: Date) => void;
 }
 
 export function CalendarDay({
@@ -15,6 +16,7 @@ export function CalendarDay({
   isCurrentMonth,
   tasks,
   lists,
+  onSelectDate,
 }: CalendarDayProps) {
   const isToday =
     date.getFullYear() === today.getFullYear() &&
@@ -24,6 +26,7 @@ export function CalendarDay({
   return (
     <button
       type="button"
+      onClick={() => onSelectDate(date)}
       className={`min-h-24 border-b border-r border-slate-100 p-2 text-left align-top transition hover:bg-slate-50 ${
         isCurrentMonth ? "bg-white" : "bg-slate-50/60"
       }`}
