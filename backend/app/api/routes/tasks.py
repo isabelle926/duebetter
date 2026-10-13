@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from app.api.dependencies import get_current_user, get_db
 from app.models.task import Task
 from app.models.task_list import TaskList
+from app.models.sticker import Sticker
 from app.models.user import User
 from app.schemas.task import (
     TaskCreate,
@@ -182,6 +183,31 @@ def update_task(
             user_id=current_user.id,
             db=db,
         )
+    
+    if (
+        "sticker_id" in updates
+        and updates["sticker_id"] is not None
+    ):
+        sticker_statement = (
+            select(Sticker).where(
+                Sticker.id
+                == updates["sticker_id"],
+                Sticker.user_id
+                == current_user.id,
+            )
+        )
+
+        sticker = db.scalar(
+            sticker_statement
+        )
+
+        if sticker is None:
+            raise HTTPException(
+                status_code=(
+                    status.HTTP_404_NOT_FOUND
+                ),
+                detail="Sticker not found",
+            )
 
     for field, value in updates.items():
         setattr(task, field, value)

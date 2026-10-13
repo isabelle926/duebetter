@@ -1,6 +1,11 @@
 from fastapi import FastAPI
 
-from app.api.routes import auth, lists, tasks
+from app.api.routes import (
+    auth,
+    lists,
+    stickers,
+    tasks,
+)
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
@@ -31,6 +36,11 @@ app.include_router(
 
 app.include_router(
     tasks.router,
+    prefix="/api",
+)
+
+app.include_router(
+    stickers.router,
     prefix="/api",
 )
 

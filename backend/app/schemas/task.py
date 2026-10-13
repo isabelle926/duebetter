@@ -25,6 +25,8 @@ class TaskCreate(BaseModel):
 class TaskUpdate(BaseModel):
     list_id: uuid.UUID | None = None
 
+    sticker_id: uuid.UUID | None = None
+
     title: str | None = Field(
         default=None,
         min_length=1,
