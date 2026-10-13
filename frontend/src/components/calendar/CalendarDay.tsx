@@ -19,16 +19,23 @@ export function CalendarDay({
   onSelectDate,
 }: CalendarDayProps) {
   const isToday =
-    date.getFullYear() === today.getFullYear() &&
-    date.getMonth() === today.getMonth() &&
-    date.getDate() === today.getDate();
+    date.getFullYear() ===
+      today.getFullYear() &&
+    date.getMonth() ===
+      today.getMonth() &&
+    date.getDate() ===
+      today.getDate();
 
   return (
     <button
       type="button"
-      onClick={() => onSelectDate(date)}
+      onClick={() =>
+        onSelectDate(date)
+      }
       className={`min-h-24 border-b border-r border-slate-100 p-2 text-left align-top transition hover:bg-slate-50 ${
-        isCurrentMonth ? "bg-white" : "bg-slate-50/60"
+        isCurrentMonth
+          ? "bg-white"
+          : "bg-slate-50/60"
       }`}
     >
       <div className="mb-2">
@@ -46,24 +53,32 @@ export function CalendarDay({
       </div>
 
       <div className="flex flex-wrap gap-1">
-        {tasks.slice(0, 6).map((task) => {
-          const list = lists.find(
-            (candidate) => candidate.id === task.list_id,
-          );
+        {tasks
+          .slice(0, 6)
+          .map((task) => {
+            const list = lists.find(
+              (candidate) =>
+                candidate.id ===
+                task.list_id,
+            );
 
-          return (
-            <span
-              key={task.id}
-              className={`h-2 w-2 rounded-full ${
-                task.completed ? "opacity-30" : ""
-              }`}
-              style={{
-                backgroundColor: list?.color ?? "#94a3b8",
-              }}
-              title={task.title}
-            />
-          );
-        })}
+            return (
+              <span
+                key={task.id}
+                className={`h-2 w-2 rounded-full ${
+                  task.completed
+                    ? "opacity-30"
+                    : ""
+                }`}
+                style={{
+                  backgroundColor:
+                    list?.color ??
+                    "#94a3b8",
+                }}
+                title={task.title}
+              />
+            );
+          })}
 
         {tasks.length > 6 && (
           <span className="text-[10px] text-slate-400">

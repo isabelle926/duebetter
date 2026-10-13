@@ -9,7 +9,9 @@ interface ListSidebarProps {
   lists: TaskList[];
   tasks: Task[];
   onToggleTask: (taskId: string) => void;
+  onEditTask: (task: Task) => void;
   onDeleteTask: (taskId: string) => void;
+  onEditList: (list: TaskList) => void;
   onDeleteList: (listId: string) => void;
   onAddTask: () => void;
 }
@@ -18,7 +20,9 @@ export function ListSidebar({
   lists,
   tasks,
   onToggleTask,
+  onEditTask,
   onDeleteTask,
+  onEditList,
   onDeleteList,
   onAddTask,
 }: ListSidebarProps) {
@@ -47,10 +51,17 @@ export function ListSidebar({
 
         <div className="flex-1 space-y-6 overflow-y-auto p-4">
           {lists.map((list) => {
-            const listTasks = tasks.filter(
-              (task) =>
-                task.list_id === list.id,
-            );
+            const listTasks = tasks
+              .filter(
+                (task) =>
+                  task.list_id === list.id &&
+                  !task.completed,
+              )
+              .sort((a, b) =>
+                a.due_date.localeCompare(
+                  b.due_date,
+                ),
+              );
 
             return (
               <TaskListSection
@@ -58,7 +69,9 @@ export function ListSidebar({
                 list={list}
                 tasks={listTasks}
                 onToggleTask={onToggleTask}
+                onEditTask={onEditTask}
                 onDeleteTask={onDeleteTask}
+                onEditList={onEditList}
                 onDeleteList={onDeleteList}
               />
             );

@@ -6,26 +6,58 @@ import {
 } from "@tanstack/react-query";
 
 import {
+  deleteList,
+  getLists,
+} from "../api/lists";
+import {
+  deleteTask,
   getTasks,
   updateTask,
-  deleteTask,
 } from "../api/tasks";
 import { Calendar } from "../components/calendar/Calendar";
+import { DayModal } from "../components/calendar/DayModal";
 import { Header } from "../components/layout/Header";
+import { EditListModal } from "../components/lists/EditListModal";
 import { ListSidebar } from "../components/lists/ListSidebar";
 import { CreateTaskModal } from "../components/tasks/CreateTaskModal";
+import { EditTaskModal } from "../components/tasks/EditTaskModal";
+import { ConfirmModal } from "../components/ui/ConfirmModal";
 import { useCurrentUser } from "../hooks/useCurrentUser";
 import type { Task } from "../types/task";
 import type { TaskList } from "../types/taskList";
-import { deleteList, getLists } from "../api/lists";
 
 export function Dashboard() {
   const queryClient = useQueryClient();
 
   const [
-    selectedTaskDate,
-    setSelectedTaskDate,
+    selectedDate,
+    setSelectedDate,
   ] = useState<Date | null>(null);
+
+  const [
+    createTaskDate,
+    setCreateTaskDate,
+  ] = useState<Date | null>(null);
+
+  const [
+    editingTask,
+    setEditingTask,
+  ] = useState<Task | null>(null);
+
+  const [
+    editingList,
+    setEditingList,
+  ] = useState<TaskList | null>(null);
+
+  const [
+    taskToDelete,
+    setTaskToDelete,
+  ] = useState<Task | null>(null);
+
+  const [
+    listToDelete,
+    setListToDelete,
+  ] = useState<TaskList | null>(null);
 
   const currentUserQuery = useCurrentUser();
 
@@ -111,9 +143,21 @@ export function Dashboard() {
     },
   });
 
+  const deleteTaskMutation = useMutation({
+    mutationFn: deleteTask,
+
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ["tasks"],
+      });
+
+      setTaskToDelete(null);
+    },
+  });
+
   const deleteListMutation = useMutation({
     mutationFn: deleteList,
-  
+
     onSuccess: () => {
       void Promise.all([
         queryClient.invalidateQueries({
@@ -123,16 +167,8 @@ export function Dashboard() {
           queryKey: ["tasks"],
         }),
       ]);
-    },
-  });
 
-  const deleteTaskMutation = useMutation({
-    mutationFn: deleteTask,
-  
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: ["tasks"],
-      });
+      setListToDelete(null);
     },
   });
 
@@ -165,12 +201,17 @@ export function Dashboard() {
   const user = currentUserQuery.data;
 
   const lists: TaskList[] =
-    listsQuery.data.map((list) => ({
-      id: list.id,
-      name: list.name,
-      color: list.color,
-      position: list.position,
-    }));
+    listsQuery.data
+      .map((list) => ({
+        id: list.id,
+        name: list.name,
+        color: list.color,
+        position: list.position,
+      }))
+      .sort(
+        (a, b) =>
+          a.position - b.position,
+      );
 
   const tasks: Task[] =
     tasksQuery.data.map((task) => ({
@@ -205,15 +246,14 @@ export function Dashboard() {
   function handleDeleteTask(
     taskId: string,
   ) {
-    const confirmed = window.confirm(
-      "Delete this task?",
+    const task = tasks.find(
+      (candidate) =>
+        candidate.id === taskId,
     );
-  
-    if (!confirmed) {
-      return;
+
+    if (task) {
+      setTaskToDelete(task);
     }
-  
-    deleteTaskMutation.mutate(taskId);
   }
 
   function handleDeleteList(
@@ -223,20 +263,10 @@ export function Dashboard() {
       (candidate) =>
         candidate.id === listId,
     );
-  
-    if (!list) {
-      return;
+
+    if (list) {
+      setListToDelete(list);
     }
-  
-    const confirmed = window.confirm(
-      `Delete "${list.name}" and all of its tasks?`,
-    );
-  
-    if (!confirmed) {
-      return;
-    }
-  
-    deleteListMutation.mutate(listId);
   }
 
   return (
@@ -244,32 +274,115 @@ export function Dashboard() {
       <Header user={user} />
 
       <main className="grid min-h-0 flex-1 grid-cols-[320px_1fr]">
-      <ListSidebar
-        lists={lists}
-        tasks={tasks}
-        onToggleTask={handleToggleTask}
-        onDeleteTask={handleDeleteTask}
-        onAddTask={() =>
-          setSelectedTaskDate(new Date())
-        }
-        onDeleteList={handleDeleteList}
-      />
+        <ListSidebar
+          lists={lists}
+          tasks={tasks}
+          onToggleTask={handleToggleTask}
+          onEditTask={(task) =>
+            setEditingTask(task)
+          }
+          onDeleteTask={handleDeleteTask}
+          onEditList={(list) =>
+            setEditingList(list)
+          }
+          onDeleteList={handleDeleteList}
+          onAddTask={() =>
+            setCreateTaskDate(new Date())
+          }
+        />
 
         <Calendar
           lists={lists}
           tasks={tasks}
           onSelectDate={(date) =>
-            setSelectedTaskDate(date)
+            setSelectedDate(date)
           }
         />
       </main>
 
-      {selectedTaskDate && (
+      {selectedDate && (
+        <DayModal
+          date={selectedDate}
+          tasks={tasks}
+          lists={lists}
+          onToggleTask={handleToggleTask}
+          onEditTask={(task) => {
+            setSelectedDate(null);
+            setEditingTask(task);
+          }}
+          onAddTask={() => {
+            setCreateTaskDate(
+              selectedDate,
+            );
+            setSelectedDate(null);
+          }}
+          onClose={() =>
+            setSelectedDate(null)
+          }
+        />
+      )}
+
+      {createTaskDate && (
         <CreateTaskModal
           lists={lists}
-          initialDate={selectedTaskDate}
+          initialDate={createTaskDate}
           onClose={() =>
-            setSelectedTaskDate(null)
+            setCreateTaskDate(null)
+          }
+        />
+      )}
+
+      {editingTask && (
+        <EditTaskModal
+          task={editingTask}
+          lists={lists}
+          onClose={() =>
+            setEditingTask(null)
+          }
+        />
+      )}
+
+      {editingList && (
+        <EditListModal
+          list={editingList}
+          onClose={() =>
+            setEditingList(null)
+          }
+        />
+      )}
+
+      {taskToDelete && (
+        <ConfirmModal
+          title="Delete task?"
+          message={`"${taskToDelete.title}" will be permanently deleted.`}
+          isPending={
+            deleteTaskMutation.isPending
+          }
+          onConfirm={() =>
+            deleteTaskMutation.mutate(
+              taskToDelete.id,
+            )
+          }
+          onClose={() =>
+            setTaskToDelete(null)
+          }
+        />
+      )}
+
+      {listToDelete && (
+        <ConfirmModal
+          title="Delete list?"
+          message={`"${listToDelete.name}" and all tasks inside it will be permanently deleted.`}
+          isPending={
+            deleteListMutation.isPending
+          }
+          onConfirm={() =>
+            deleteListMutation.mutate(
+              listToDelete.id,
+            )
+          }
+          onClose={() =>
+            setListToDelete(null)
           }
         />
       )}
