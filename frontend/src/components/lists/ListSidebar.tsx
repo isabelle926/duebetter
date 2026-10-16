@@ -2,12 +2,14 @@ import { useState } from "react";
 
 import type { Task } from "../../types/task";
 import type { TaskList } from "../../types/taskList";
+import type { Sticker } from "../../types/api";
 import { CreateListModal } from "./CreateListModal";
 import { TaskList as TaskListSection } from "./TaskList";
 
 interface ListSidebarProps {
   lists: TaskList[];
   tasks: Task[];
+  stickers: Sticker[];
   onToggleTask: (taskId: string) => void;
   onEditTask: (task: Task) => void;
   onDeleteTask: (taskId: string) => void;
@@ -19,6 +21,7 @@ interface ListSidebarProps {
 export function ListSidebar({
   lists,
   tasks,
+  stickers,
   onToggleTask,
   onEditTask,
   onDeleteTask,
@@ -68,6 +71,7 @@ export function ListSidebar({
                 key={list.id}
                 list={list}
                 tasks={listTasks}
+                stickers={stickers}
                 onToggleTask={onToggleTask}
                 onEditTask={onEditTask}
                 onDeleteTask={onDeleteTask}

@@ -1,3 +1,4 @@
+import type { Sticker } from "../../types/api";
 import type { Task } from "../../types/task";
 import type { TaskList } from "../../types/taskList";
 import { Modal } from "../ui/Modal";
@@ -7,6 +8,7 @@ interface DayModalProps {
   date: Date;
   tasks: Task[];
   lists: TaskList[];
+  stickers: Sticker[];
   onAddTask: () => void;
   onEditTask: (task: Task) => void;
   onToggleTask: (taskId: string) => void;
@@ -17,6 +19,7 @@ export function DayModal({
   date,
   tasks,
   lists,
+  stickers,
   onAddTask,
   onEditTask,
   onToggleTask,
@@ -57,8 +60,18 @@ export function DayModal({
           dayTasks.map((task) => {
             const list = lists.find(
               (candidate) =>
-                candidate.id === task.list_id,
+                candidate.id ===
+                task.list_id,
             );
+
+            const sticker =
+              task.sticker_id
+                ? stickers.find(
+                    (candidate) =>
+                      candidate.id ===
+                      task.sticker_id,
+                  )
+                : undefined;
 
             return (
               <div
@@ -85,6 +98,15 @@ export function DayModal({
                     ? "✓"
                     : ""}
                 </button>
+
+                {sticker && (
+                  <img
+                    src={sticker.image_url}
+                    alt=""
+                    className="h-9 w-9 shrink-0 object-contain"
+                    loading="lazy"
+                  />
+                )}
 
                 <button
                   type="button"

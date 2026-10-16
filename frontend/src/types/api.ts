@@ -5,6 +5,15 @@ export interface User {
     created_at: string;
     updated_at: string;
   }
+
+  export interface Sticker {
+    id: string;
+    user_id: string;
+    name: string;
+    storage_key: string;
+    image_url: string;
+    created_at: string;
+  }
   
   export interface ApiTaskList {
     id: string;
@@ -43,6 +52,7 @@ export interface User {
   
   export interface UpdateTaskInput {
     list_id?: string;
+    sticker_id?: string | null;
     title?: string;
     description?: string | null;
     due_date?: string;

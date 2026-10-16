@@ -1,7 +1,9 @@
+import type { Sticker } from "../../types/api";
 import type { Task } from "../../types/task";
 
 interface TaskItemProps {
   task: Task;
+  sticker?: Sticker;
   onToggle: (taskId: string) => void;
   onEdit: (task: Task) => void;
   onDelete: (taskId: string) => void;
@@ -9,6 +11,7 @@ interface TaskItemProps {
 
 export function TaskItem({
   task,
+  sticker,
   onToggle,
   onEdit,
   onDelete,
@@ -31,6 +34,15 @@ export function TaskItem({
       >
         {task.completed ? "✓" : ""}
       </button>
+
+      {sticker && (
+        <img
+          src={sticker.image_url}
+          alt=""
+          className="h-7 w-7 shrink-0 object-contain"
+          loading="lazy"
+        />
+      )}
 
       <button
         type="button"

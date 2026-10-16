@@ -1,3 +1,4 @@
+import type { Sticker } from "../../types/api";
 import type { Task } from "../../types/task";
 import type { TaskList as TaskListType } from "../../types/taskList";
 import { TaskItem } from "./TaskItem";
@@ -5,6 +6,7 @@ import { TaskItem } from "./TaskItem";
 interface TaskListProps {
   list: TaskListType;
   tasks: Task[];
+  stickers: Sticker[];
   onToggleTask: (taskId: string) => void;
   onEditTask: (task: Task) => void;
   onDeleteTask: (taskId: string) => void;
@@ -15,6 +17,7 @@ interface TaskListProps {
 export function TaskList({
   list,
   tasks,
+  stickers,
   onToggleTask,
   onEditTask,
   onDeleteTask,
@@ -54,7 +57,9 @@ export function TaskList({
 
           <button
             type="button"
-            onClick={() => onDeleteList(list.id)}
+            onClick={() =>
+              onDeleteList(list.id)
+            }
             className="flex h-6 w-6 items-center justify-center rounded text-xs text-slate-300 transition hover:bg-red-50 hover:text-red-600"
             aria-label={`Delete ${list.name}`}
             title="Delete list"
@@ -70,15 +75,26 @@ export function TaskList({
             No open tasks
           </p>
         ) : (
-          tasks.map((task) => (
-            <TaskItem
-              key={task.id}
-              task={task}
-              onToggle={onToggleTask}
-              onEdit={onEditTask}
-              onDelete={onDeleteTask}
-            />
-          ))
+          tasks.map((task) => {
+            const sticker = task.sticker_id
+              ? stickers.find(
+                  (candidate) =>
+                    candidate.id ===
+                    task.sticker_id,
+                )
+              : undefined;
+
+            return (
+              <TaskItem
+                key={task.id}
+                task={task}
+                sticker={sticker}
+                onToggle={onToggleTask}
+                onEdit={onEditTask}
+                onDelete={onDeleteTask}
+              />
+            );
+          })
         )}
       </div>
     </section>

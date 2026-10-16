@@ -22,9 +22,13 @@ export async function apiRequest<T>(
 
   if (
     options.body !== undefined &&
+    !(options.body instanceof FormData) &&
     !headers.has("Content-Type")
   ) {
-    headers.set("Content-Type", "application/json");
+    headers.set(
+      "Content-Type",
+      "application/json",
+    );
   }
 
   const response = await fetch(

@@ -19,10 +19,12 @@ import { DayModal } from "../components/calendar/DayModal";
 import { Header } from "../components/layout/Header";
 import { EditListModal } from "../components/lists/EditListModal";
 import { ListSidebar } from "../components/lists/ListSidebar";
+import { StickerLibraryModal } from "../components/stickers/StickerLibraryModal";
 import { CreateTaskModal } from "../components/tasks/CreateTaskModal";
 import { EditTaskModal } from "../components/tasks/EditTaskModal";
 import { ConfirmModal } from "../components/ui/ConfirmModal";
 import { useCurrentUser } from "../hooks/useCurrentUser";
+import { useStickers } from "../hooks/useStickers";
 import type { Task } from "../types/task";
 import type { TaskList } from "../types/taskList";
 
@@ -59,7 +61,14 @@ export function Dashboard() {
     setListToDelete,
   ] = useState<TaskList | null>(null);
 
+  const [
+    isStickerLibraryOpen,
+    setIsStickerLibraryOpen,
+  ] = useState(false);
+
   const currentUserQuery = useCurrentUser();
+
+  const stickersQuery = useStickers();
 
   const listsQuery = useQuery({
     queryKey: ["lists"],
@@ -175,7 +184,8 @@ export function Dashboard() {
   if (
     currentUserQuery.isPending ||
     listsQuery.isPending ||
-    tasksQuery.isPending
+    tasksQuery.isPending ||
+    stickersQuery.isPending
   ) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50 text-sm text-slate-500">
@@ -187,7 +197,8 @@ export function Dashboard() {
   if (
     currentUserQuery.isError ||
     listsQuery.isError ||
-    tasksQuery.isError
+    tasksQuery.isError ||
+    stickersQuery.isError
   ) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50">
@@ -199,6 +210,8 @@ export function Dashboard() {
   }
 
   const user = currentUserQuery.data;
+
+  const stickers = stickersQuery.data;
 
   const lists: TaskList[] =
     listsQuery.data
@@ -271,12 +284,18 @@ export function Dashboard() {
 
   return (
     <div className="flex h-screen flex-col bg-slate-50">
-      <Header user={user} />
+      <Header
+        user={user}
+        onOpenStickers={() =>
+          setIsStickerLibraryOpen(true)
+        }
+      />
 
       <main className="grid min-h-0 flex-1 grid-cols-[320px_1fr]">
         <ListSidebar
           lists={lists}
           tasks={tasks}
+          stickers={stickers}
           onToggleTask={handleToggleTask}
           onEditTask={(task) =>
             setEditingTask(task)
@@ -305,6 +324,7 @@ export function Dashboard() {
           date={selectedDate}
           tasks={tasks}
           lists={lists}
+          stickers={stickers}
           onToggleTask={handleToggleTask}
           onEditTask={(task) => {
             setSelectedDate(null);
@@ -347,6 +367,16 @@ export function Dashboard() {
           list={editingList}
           onClose={() =>
             setEditingList(null)
+          }
+        />
+      )}
+
+      {isStickerLibraryOpen && (
+        <StickerLibraryModal
+          onClose={() =>
+            setIsStickerLibraryOpen(
+              false,
+            )
           }
         />
       )}
