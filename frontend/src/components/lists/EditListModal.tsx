@@ -7,7 +7,12 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 
-import { updateList } from "../../api/lists";
+import {
+  ApiError,
+} from "../../api/client";
+import {
+  updateList,
+} from "../../api/lists";
 import type { TaskList } from "../../types/taskList";
 import { Modal } from "../ui/Modal";
 
@@ -31,13 +36,11 @@ export function EditListModal({
 }: EditListModalProps) {
   const queryClient = useQueryClient();
 
-  const [name, setName] = useState(
-    list.name,
-  );
+  const [name, setName] =
+    useState(list.name);
 
-  const [color, setColor] = useState(
-    list.color,
-  );
+  const [color, setColor] =
+    useState(list.color);
 
   const mutation = useMutation({
     mutationFn: () =>
@@ -67,6 +70,13 @@ export function EditListModal({
     mutation.mutate();
   }
 
+  const errorMessage =
+    mutation.error instanceof ApiError
+      ? mutation.error.message
+      : mutation.error
+        ? "Unable to update list."
+        : null;
+
   return (
     <Modal
       title="Edit list"
@@ -92,7 +102,9 @@ export function EditListModal({
             maxLength={100}
             value={name}
             onChange={(event) =>
-              setName(event.target.value)
+              setName(
+                event.target.value,
+              )
             }
             className="w-full rounded-lg border border-slate-300 px-3 py-2.5 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
           />
@@ -104,33 +116,38 @@ export function EditListModal({
           </legend>
 
           <div className="flex flex-wrap gap-3">
-            {COLORS.map((option) => (
-              <button
-                key={option}
-                type="button"
-                onClick={() =>
-                  setColor(option)
-                }
-                className={`h-8 w-8 rounded-full transition ${
-                  color === option
-                    ? "ring-2 ring-indigo-500 ring-offset-2"
-                    : ""
-                }`}
-                style={{
-                  backgroundColor: option,
-                }}
-                aria-label={`Select color ${option}`}
-              />
-            ))}
+            {COLORS.map(
+              (option) => (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() =>
+                    setColor(option)
+                  }
+                  className={`h-8 w-8 rounded-full transition ${
+                    color === option
+                      ? "ring-2 ring-indigo-500 ring-offset-2"
+                      : ""
+                  }`}
+                  style={{
+                    backgroundColor:
+                      option,
+                  }}
+                  aria-label={
+                    `Select color ${option}`
+                  }
+                />
+              ),
+            )}
           </div>
         </fieldset>
 
-        {mutation.isError && (
+        {errorMessage && (
           <p
             role="alert"
             className="text-sm text-red-600"
           >
-            Unable to update list.
+            {errorMessage}
           </p>
         )}
 
@@ -138,7 +155,8 @@ export function EditListModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
+            disabled={mutation.isPending}
+            className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 disabled:opacity-50"
           >
             Cancel
           </button>

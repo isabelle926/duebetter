@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     secure_cookies: bool = False
     session_cookie_samesite: str = "lax"
 
+    rate_limit_enabled: bool = True
+
     r2_account_id: str
     r2_access_key_id: str
     r2_secret_access_key: str

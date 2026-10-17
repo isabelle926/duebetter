@@ -202,9 +202,14 @@ export function Dashboard() {
   ) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50">
-        <p className="text-sm text-red-600">
-          Unable to load your DueBetter data.
-        </p>
+        <button
+          type="button"
+          onClick={() => {
+            void queryClient.invalidateQueries();
+          }}
+        >
+          Try again
+        </button>
       </div>
     );
   }

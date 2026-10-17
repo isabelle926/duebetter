@@ -7,12 +7,23 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 
-import { updateTask } from "../../api/tasks";
-import { useStickers } from "../../hooks/useStickers";
+import {
+  ApiError,
+} from "../../api/client";
+import {
+  updateTask,
+} from "../../api/tasks";
+import {
+  useStickers,
+} from "../../hooks/useStickers";
 import type { Task } from "../../types/task";
 import type { TaskList } from "../../types/taskList";
-import { StickerPicker } from "../stickers/StickerPicker";
-import { UploadStickerModal } from "../stickers/UploadStickerModal";
+import {
+  StickerPicker,
+} from "../stickers/StickerPicker";
+import {
+  UploadStickerModal,
+} from "../stickers/UploadStickerModal";
 import { Modal } from "../ui/Modal";
 
 interface EditTaskModalProps {
@@ -28,22 +39,24 @@ export function EditTaskModal({
 }: EditTaskModalProps) {
   const queryClient = useQueryClient();
 
-  const stickersQuery = useStickers();
+  const stickersQuery =
+    useStickers();
 
-  const [title, setTitle] = useState(
-    task.title,
+  const [title, setTitle] =
+    useState(task.title);
+
+  const [
+    description,
+    setDescription,
+  ] = useState(
+    task.description ?? "",
   );
 
-  const [description, setDescription] =
-    useState(task.description ?? "");
+  const [listId, setListId] =
+    useState(task.list_id);
 
-  const [listId, setListId] = useState(
-    task.list_id,
-  );
-
-  const [dueDate, setDueDate] = useState(
-    task.due_date,
-  );
+  const [dueDate, setDueDate] =
+    useState(task.due_date);
 
   const [
     stickerId,
@@ -89,6 +102,13 @@ export function EditTaskModal({
     mutation.mutate();
   }
 
+  const errorMessage =
+    mutation.error instanceof ApiError
+      ? mutation.error.message
+      : mutation.error
+        ? "Unable to update task."
+        : null;
+
   return (
     <>
       <Modal
@@ -115,7 +135,9 @@ export function EditTaskModal({
               maxLength={255}
               value={title}
               onChange={(event) =>
-                setTitle(event.target.value)
+                setTitle(
+                  event.target.value,
+                )
               }
               className="w-full rounded-lg border border-slate-300 px-3 py-2.5 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
             />
@@ -200,7 +222,10 @@ export function EditTaskModal({
           )}
 
           {stickersQuery.isError && (
-            <p className="text-sm text-red-600">
+            <p
+              role="alert"
+              className="text-sm text-red-600"
+            >
               Unable to load stickers.
             </p>
           )}
@@ -213,19 +238,21 @@ export function EditTaskModal({
               selectedStickerId={
                 stickerId
               }
-              onSelect={setStickerId}
+              onSelect={
+                setStickerId
+              }
               onUpload={() =>
                 setIsUploadOpen(true)
               }
             />
           )}
 
-          {mutation.isError && (
+          {errorMessage && (
             <p
               role="alert"
               className="text-sm text-red-600"
             >
-              Unable to update task.
+              {errorMessage}
             </p>
           )}
 
@@ -233,7 +260,10 @@ export function EditTaskModal({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
+              disabled={
+                mutation.isPending
+              }
+              className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 disabled:opacity-50"
             >
               Cancel
             </button>

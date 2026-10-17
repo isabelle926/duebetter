@@ -6,17 +6,19 @@ from fastapi import (
     File,
     Form,
     HTTPException,
+    Request,
     Response,
     UploadFile,
     status,
 )
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import (
     get_current_user,
     get_db,
 )
+from app.core.rate_limit import limiter
 from app.models.sticker import Sticker
 from app.models.task import Task
 from app.models.user import User
@@ -38,12 +40,17 @@ router = APIRouter(
 )
 
 
+MAX_STICKERS_PER_USER = 100
+
+
 @router.post(
     "",
     response_model=StickerResponse,
     status_code=status.HTTP_201_CREATED,
 )
+@limiter.limit("10/minute")
 async def upload_sticker(
+    request: Request,
     name: str = Form(...),
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
@@ -70,6 +77,34 @@ async def upload_sticker(
                 "Sticker name must be "
                 "100 characters or fewer"
             ),
+        )
+
+    sticker_count_statement = (
+        select(
+            func.count(Sticker.id)
+        )
+        .where(
+            Sticker.user_id
+            == current_user.id
+        )
+    )
+
+    sticker_count = (
+        db.scalar(
+            sticker_count_statement
+        )
+        or 0
+    )
+
+    if (
+        sticker_count
+        >= MAX_STICKERS_PER_USER
+    ):
+        raise HTTPException(
+            status_code=(
+                status.HTTP_409_CONFLICT
+            ),
+            detail="Sticker limit reached",
         )
 
     data = await file.read(
@@ -99,7 +134,7 @@ async def upload_sticker(
         name=sticker_name,
         storage_key=storage_key,
         image_url=get_public_url(
-            key=storage_key
+            key=storage_key,
         ),
     )
 
@@ -158,7 +193,9 @@ def delete_sticker(
         get_current_user
     ),
 ) -> Response:
-    statement = select(Sticker).where(
+    statement = select(
+        Sticker
+    ).where(
         Sticker.id == sticker_id,
         Sticker.user_id
         == current_user.id,
@@ -174,9 +211,13 @@ def delete_sticker(
             detail="Sticker not found",
         )
 
-    tasks_statement = select(Task).where(
-        Task.sticker_id == sticker.id,
-        Task.user_id == current_user.id,
+    tasks_statement = select(
+        Task
+    ).where(
+        Task.sticker_id
+        == sticker.id,
+        Task.user_id
+        == current_user.id,
     )
 
     tasks = list(
