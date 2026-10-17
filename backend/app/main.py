@@ -8,6 +8,8 @@ from app.api.routes import (
 )
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.core.config import settings
+
 app = FastAPI(
     title="DueBetter API",
     version="0.1.0",
@@ -21,7 +23,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:5173",
+        settings.frontend_url,
     ],
     allow_credentials=True,
     allow_methods=["*"],

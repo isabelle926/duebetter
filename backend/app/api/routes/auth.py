@@ -46,7 +46,7 @@ def set_session_cookie(
         max_age=max_age,
         httponly=True,
         secure=settings.secure_cookies,
-        samesite="lax",
+        samesite=settings.session_cookie_samesite,
         path="/",
     )
 
@@ -186,7 +186,7 @@ def logout(
         path="/",
         secure=settings.secure_cookies,
         httponly=True,
-        samesite="lax",
+        samesite=settings.session_cookie_samesite,
     )
 
     response.status_code = status.HTTP_204_NO_CONTENT

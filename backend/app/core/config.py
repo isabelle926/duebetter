@@ -4,9 +4,12 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     database_url: str
 
+    frontend_url: str = "http://localhost:5173"
+
     session_cookie_name: str = "duebetter_session"
     session_lifetime_days: int = 30
     secure_cookies: bool = False
+    session_cookie_samesite: str = "lax"
 
     r2_account_id: str
     r2_access_key_id: str
