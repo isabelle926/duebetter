@@ -56,6 +56,8 @@ jobs:
       R2_BUCKET_NAME: duebetter-test
       R2_PUBLIC_URL: https://example.test
 
+      RATE_LIMIT_ENABLED: "false"
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
