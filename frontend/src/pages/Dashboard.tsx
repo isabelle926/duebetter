@@ -27,6 +27,9 @@ import { useCurrentUser } from "../hooks/useCurrentUser";
 import { useStickers } from "../hooks/useStickers";
 import type { Task } from "../types/task";
 import type { TaskList } from "../types/taskList";
+import {
+  EditProfileModal,
+} from "../components/profile/EditProfileModal";
 
 export function Dashboard() {
   const queryClient = useQueryClient();
@@ -64,6 +67,11 @@ export function Dashboard() {
   const [
     isStickerLibraryOpen,
     setIsStickerLibraryOpen,
+  ] = useState(false);
+
+  const [
+    isEditProfileOpen,
+    setIsEditProfileOpen,
   ] = useState(false);
 
   const currentUserQuery = useCurrentUser();
@@ -294,6 +302,9 @@ export function Dashboard() {
         onOpenStickers={() =>
           setIsStickerLibraryOpen(true)
         }
+        onEditProfile={() =>
+          setIsEditProfileOpen(true)
+        }
       />
 
       <main className="grid min-h-0 flex-1 grid-cols-[320px_1fr]">
@@ -418,6 +429,17 @@ export function Dashboard() {
           }
           onClose={() =>
             setListToDelete(null)
+          }
+        />
+      )}
+
+      {isEditProfileOpen && (
+        <EditProfileModal
+          user={user}
+          onClose={() =>
+            setIsEditProfileOpen(
+              false,
+            )
           }
         />
       )}

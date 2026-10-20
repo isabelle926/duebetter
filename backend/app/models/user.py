@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, String, func
+from sqlalchemy import DateTime, String, func, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -65,6 +65,20 @@ class User(Base):
     sessions: Mapped[list["Session"]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan",
+    )
+
+    avatar_url: Mapped[
+        str | None
+    ] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
+    avatar_storage_key: Mapped[
+        str | None
+    ] = mapped_column(
+        Text,
+        nullable=True,
     )
 
 

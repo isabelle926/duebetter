@@ -35,3 +35,4 @@ class UserResponse(BaseModel):
     display_name: str
     created_at: datetime
     updated_at: datetime
+    avatar_url: str | None

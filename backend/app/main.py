@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from app.api.routes import (
     auth,
     lists,
+    profile,
     stickers,
     tasks,
 )
@@ -78,6 +79,11 @@ app.include_router(
 
 app.include_router(
     stickers.router,
+    prefix="/api",
+)
+
+app.include_router(
+    profile.router,
     prefix="/api",
 )
 

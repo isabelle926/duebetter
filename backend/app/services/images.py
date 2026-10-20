@@ -5,34 +5,34 @@ from PIL import Image, UnidentifiedImageError
 
 
 MAX_STICKER_SIZE = 2 * 1024 * 1024
+MAX_AVATAR_SIZE = 2 * 1024 * 1024
+
+MAX_DIMENSION = 2048
 
 ALLOWED_FORMATS = {
     "PNG": "image/png",
     "WEBP": "image/webp",
 }
 
-MAX_DIMENSION = 2048
 
-
-def validate_sticker_image(
+def _validate_image(
     data: bytes,
+    *,
+    max_size: int,
+    size_error: str,
 ) -> tuple[str, str]:
-    if len(data) > MAX_STICKER_SIZE:
+    if not data:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Uploaded file is empty",
+        )
+
+    if len(data) > max_size:
         raise HTTPException(
             status_code=(
                 status.HTTP_413_CONTENT_TOO_LARGE
             ),
-            detail=(
-                "Sticker must be 2 MB or smaller"
-            ),
-        )
-
-    if not data:
-        raise HTTPException(
-            status_code=(
-                status.HTTP_400_BAD_REQUEST
-            ),
-            detail="Uploaded file is empty",
+            detail=size_error,
         )
 
     try:
@@ -46,17 +46,14 @@ def validate_sticker_image(
         ) as image:
             image_format = image.format
 
-            if (
-                image_format
-                not in ALLOWED_FORMATS
-            ):
+            if image_format not in ALLOWED_FORMATS:
                 raise HTTPException(
                     status_code=(
                         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE
                     ),
                     detail=(
-                        "Only PNG and WebP "
-                        "stickers are supported"
+                        "Only PNG and WebP images "
+                        "are supported"
                     ),
                 )
 
@@ -71,13 +68,15 @@ def validate_sticker_image(
                         status.HTTP_422_UNPROCESSABLE_ENTITY
                     ),
                     detail=(
-                        "Sticker dimensions must "
-                        "not exceed 2048×2048"
+                        "Image dimensions must not "
+                        "exceed 2048x2048"
                     ),
                 )
 
             content_type = (
-                ALLOWED_FORMATS[image_format]
+                ALLOWED_FORMATS[
+                    image_format
+                ]
             )
 
             extension = (
@@ -86,7 +85,10 @@ def validate_sticker_image(
                 else "webp"
             )
 
-            return content_type, extension
+            return (
+                content_type,
+                extension,
+            )
 
     except UnidentifiedImageError as exc:
         raise HTTPException(
@@ -95,3 +97,28 @@ def validate_sticker_image(
             ),
             detail="File is not a valid image",
         ) from exc
+
+
+def validate_sticker_image(
+    data: bytes,
+) -> tuple[str, str]:
+    return _validate_image(
+        data,
+        max_size=MAX_STICKER_SIZE,
+        size_error=(
+            "Sticker must be 2 MB or smaller"
+        ),
+    )
+
+
+def validate_avatar_image(
+    data: bytes,
+) -> tuple[str, str]:
+    return _validate_image(
+        data,
+        max_size=MAX_AVATAR_SIZE,
+        size_error=(
+            "Profile picture must be "
+            "2 MB or smaller"
+        ),
+    )

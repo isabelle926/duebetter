@@ -76,9 +76,9 @@ import {
     });
   
   
-    it("opens editing when title is clicked", () => {
+    it("opens editing when task is clicked", () => {
       const onEdit = vi.fn();
-  
+    
       render(
         <TaskItem
           task={task}
@@ -87,16 +87,16 @@ import {
           onDelete={vi.fn()}
         />,
       );
-  
+    
       fireEvent.click(
         screen.getByRole(
           "button",
           {
-            name: "Finish homework",
+            name: "Edit Finish homework",
           },
         ),
       );
-  
+    
       expect(
         onEdit,
       ).toHaveBeenCalledWith(
